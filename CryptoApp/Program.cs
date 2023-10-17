@@ -1,12 +1,14 @@
-﻿// See https://aka.ms/new-console-template for more information
-
+﻿
+using CryptoApp.Executor.Impl;
 
 namespace CryptoApp;
 
 class Program
 {
-    private static readonly BlockCrypto BlockCrypto = new BlockCrypto();
-    private static readonly StreamCrypto StreamCrypto = new StreamCrypto();
+    private static readonly BlockCryptoExecutor BlockCryptoExecutor = new();
+    private static readonly StreamCryptoExecutor StreamCryptoExecutor = new();
+    private static readonly Sha256HashExecutor Sha256HashExecutor = new();
+    
 
     static void Main(string[] args)
     {
@@ -15,21 +17,25 @@ class Program
         {
             Console.Clear();
             Terminal.Message("________________________________________________");
-            Terminal.Message("Выберите шифр:");
-            Terminal.Message("1. Потовый шифр");
-            Terminal.Message("2. Блочный шифр");
-            Terminal.Message("3. Выйти");
+            Terminal.Message("Выберите режим:");
+            Terminal.Message("1. Потовое шифрование");
+            Terminal.Message("2. Блочное шифрование");
+            Terminal.Message("3. Подчет SHA 256");
+            Terminal.Message("4. Выйти");
             string choice = Console.ReadLine();
             Console.Clear();
             switch (choice)
             {
                 case "1":
-                    StreamCrypto.Exec();
+                    StreamCryptoExecutor.Exec();
                     break;
                 case "2":
-                    BlockCrypto.Exec();
+                    BlockCryptoExecutor.Exec();
                     break;
                 case "3":
+                    Sha256HashExecutor.Exec();
+                    break;
+                case "4":
                     exit = true;
                     break;
                 default:

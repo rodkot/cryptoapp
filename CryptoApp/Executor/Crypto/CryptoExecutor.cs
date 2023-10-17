@@ -1,10 +1,11 @@
 using System.Text;
+using CryptoApp.Executor;
 
 namespace CryptoApp;
 
-public abstract class CryptoExecutor
+public abstract class CryptoExecutor : IExecutor
 {
-    public virtual void Exec() 
+    public void Exec() 
     {  
         bool exit = false;
         while (!exit)

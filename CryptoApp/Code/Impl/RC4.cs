@@ -1,46 +1,63 @@
 namespace CryptoApp;
 
-class RC4
+class RC4 : Code
 {
-    private byte[] _s;
-    private byte[] _t;
+    private readonly byte[] _s;
 
     public RC4(byte[] key)
     {
         _s = new byte[256];
-        _t = new byte[256];
+        var t = new byte[256];
 
         for (int i = 0; i < 256; i++)
         {
             _s[i] = (byte)i;
-            _t[i] = key[i % key.Length];
+            t[i] = key[i % key.Length];
         }
 
         int j = 0;
         for (int i = 0; i < 256; i++)
         {
-            j = (j + _s[i] + _t[i]) % 256;
+            j = (j + _s[i] + t[i]) % 256;
             (_s[i], _s[j]) = (_s[j], _s[i]);
         }
     }
 
-    public byte[] Encrypt(byte[] input)
+    private Stream Crypt(Stream data)
     {
-        byte[] output = new byte[input.Length];
-        int i = 0;
-        int j = 0;
+        MemoryStream output = new MemoryStream();
 
-        for (int x = 0; x < input.Length; x++)
+        using (MemoryStream input = new MemoryStream())
         {
-            i = (i + 1) % 256;
-            j = (j + _s[i]) % 256;
+            data.CopyTo(input);
+            input.Position = 0;
+            int i = 0;
+            int j = 0;
+            for (int x = 0; x < input.Length; x++)
+            {
+                var current = (byte)input.ReadByte();
 
-            (_s[i], _s[j]) = (_s[j], _s[i]);
+                i = (i + 1) % 256;
+                j = (j + _s[i]) % 256;
 
-            byte k = _s[(_s[i] + _s[j]) % 256];
-            output[x] = (byte)(input[x] ^ k);
+                (_s[i], _s[j]) = (_s[j], _s[i]);
+
+                byte k = _s[(_s[i] + _s[j]) % 256];
+                output.WriteByte((byte)(current ^ k));
+            }
         }
 
+        output.Position = 0;
         return output;
+    }
+
+    public override Stream Encrypt(Stream data)
+    {
+        return Crypt(data);
+    }
+
+    public override Stream Decrypt(Stream data)
+    {
+        return Crypt(data);
     }
 }

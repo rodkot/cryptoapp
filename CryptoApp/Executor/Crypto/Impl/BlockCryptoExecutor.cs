@@ -1,7 +1,8 @@
 namespace CryptoApp;
 
-public class BlockCrypto : CryptoExecutor
+public class BlockCryptoExecutor : CryptoExecutor
 {
+    
     protected override void EncryptText()
     {
         var inputFile = Terminal.GetValue("Путь до исходного файла:");

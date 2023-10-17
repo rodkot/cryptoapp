@@ -2,7 +2,7 @@ using System.Text;
 
 namespace CryptoApp;
 
-public class StreamCrypto: CryptoExecutor
+public class StreamCryptoExecutor : CryptoExecutor
 {
     protected override void EncryptText()
     {
@@ -12,10 +12,16 @@ public class StreamCrypto: CryptoExecutor
         string key = Console.ReadLine();
 
         RC4 rc4 = new RC4(Encoding.ASCII.GetBytes(key));
-        byte[] encryptedBytes = rc4.Encrypt(Encoding.ASCII.GetBytes(inputText));
-        string encryptedText = BitConverter.ToString(encryptedBytes).Replace("-", "").ToLower();
-
-        Console.WriteLine($"Зашифрованная строка: {encryptedText}");
+        Stream encrypted = rc4.Encrypt(new MemoryStream(Encoding.ASCII.GetBytes(inputText)));
+        
+        using (MemoryStream stream = new MemoryStream())
+        {
+            encrypted.CopyTo(stream);
+            
+            string hexString = BitConverter.ToString(stream.ToArray()).Replace("-", "");
+            
+            Console.WriteLine("Зашифрованное сообщение: " + hexString);
+        } 
     }
 
     protected override void DecryptText()
@@ -32,12 +38,11 @@ public class StreamCrypto: CryptoExecutor
             encryptedBytes[i] = Convert.ToByte(inputText.Substring(i * 2, 2), 16);
         }
 
-        RC4 rc4Decrypt = new RC4(key);
-        byte[] decryptedBytes = rc4Decrypt.Encrypt(encryptedBytes);
-        string decryptedText = Encoding.ASCII.GetString(decryptedBytes);
-
-        Terminal.Message($"Расшифрованная строка: {decryptedText}");
-        
+        RC4 rc4 = new RC4(key);
+        Stream decrypted = rc4.Decrypt(new MemoryStream(encryptedBytes));
+        decrypted.Position = 0;
+        StreamReader reader = new StreamReader(decrypted, Encoding.Default);
+        string content = reader.ReadToEnd();
+        Terminal.Message($"Расшифрованное сообщение: {content}");
     }
-    
 }
